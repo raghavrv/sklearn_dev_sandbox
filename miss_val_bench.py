@@ -15,16 +15,19 @@ dataset = fetch_covtype()
 X, y = dataset.data, dataset.target
 
 # Take only 2 classes
-# mask = y < 3
-mask = (y == 1) | (y == 2)
+mask = y < 3
+# mask = (y == 1) | (y == 2)
 X = X[mask]
 y = y[mask]
 
-X, y = X[::80].copy(), y[::80].copy()
+X, y = X[::100].copy(), y[::100].copy()
+
+# X, y = X[:100], y[:100]
 
 n_samples, n_features = X.shape
 
 n_estimators = 100
+n_jobs = 2
 
 rng = np.random.RandomState(42)
 
@@ -35,7 +38,7 @@ print "The number of trees for this benchmarking is %s" % n_estimators
 
 # Estimate the score on the entire dataset, with no missing values
 estimator = RandomForestClassifier(random_state=0, n_estimators=n_estimators,
-                                   missing_values=None, n_jobs=4)
+                                   missing_values=None, n_jobs=n_jobs)
 score = cross_val_score(estimator, X, y, cv=cv).mean()
 print "Score with the entire dataset = %.2f" % score
 
@@ -43,41 +46,61 @@ baseline_score = score
 
 scores_missing = []
 scores_impute = []
+scores_featmin = []
 
 rf_missing = RandomForestClassifier(random_state=0, n_estimators=n_estimators,
-                                    missing_values='NaN', n_jobs=4)
+                                    missing_values='NaN', n_jobs=n_jobs)
 rf_impute = Pipeline([("imputer", Imputer(missing_values='NaN',
                                           strategy="median", axis=0)),
                       ("forest", RandomForestClassifier(
                                          random_state=0,
-                                         n_estimators=n_estimators))])
+                                         n_estimators=n_estimators,
+                                         n_jobs=n_jobs))])
+rf_feat_min = RandomForestClassifier(random_state=0, n_estimators=n_estimators,
+                                     missing_values=None, n_jobs=n_jobs)
 
 missing_fraction_range = []
-mask = np.ones(X.shape, dtype=bool)
+missing_mask = np.zeros(X.shape, dtype=bool)
 
 for _ in range(7):
     X_missing = X.copy()
+    X_missing_feat_min = X.copy()
     rv = rng.randn(*X.shape)
     thresh = np.sort(rv.ravel())[int(0.1 * n_samples * n_features)]
-    mask *= rv > thresh
-    mask[y == 1] = True
-    missing_fraction = np.mean(~mask)
+    missing_mask += rv < thresh
+    # missing_mask[y!=1] = False  # Features should go missing only for y=1
+    missing_fraction = np.mean(missing_mask)
     missing_fraction_range.append(missing_fraction)
-    X_missing[~mask] = np.nan
+    X_missing[missing_mask] = np.nan
+    
+    # Substitute missing values with the a featurewise low value
+    feat_min = np.abs(np.min(X, axis=1))
+    for f in range(n_features):
+        X_missing_feat_min[np.where(missing_mask)[0], f] = -2*feat_min[f]
+        
     train, test = iter(cv.split(X, y)).next()
-    score_missing = rf_missing.fit(X_missing[train], y[train]).score(X_missing[test], y[test])
-    score_impute = rf_impute.fit(X_missing[train], y[train]).score(X_missing[test], y[test])
-    # score_missing = cross_val_score(rf_missing, X_missing, y, cv=cv).mean()
-    # score_impute = cross_val_score(rf_impute, X_missing, y, cv=cv).mean()
+    # print(len(train), len(test))
+    # score_missing = rf_missing.fit(X_missing[train], y[train]).score(X_missing[test], y[test])
+    # score_impute = rf_impute.fit(X_missing[train], y[train]).score(X_missing[test], y[test])
+    score_missing = cross_val_score(rf_missing, X_missing, y, cv=cv).mean()
+    score_impute = cross_val_score(rf_impute, X_missing, y, cv=cv).mean()
+    score_featmin = cross_val_score(rf_feat_min, X_missing_feat_min, y, cv=cv).mean()
     scores_missing.append(score_missing)
     scores_impute.append(score_impute)
-    print "Score RF with the %s %% missing = %.2f" % (missing_fraction, score_missing)
-    print "Score RF+Imp. with the %s %% missing = %.2f" % (missing_fraction, score_impute)
+    scores_featmin.append(score_featmin)
+    print ("Score RF with the %s %% missing = %.2f"
+           % (missing_fraction*100, score_missing))
+    print ("Score RF+Imp. with the %s %% missing = %.2f"
+           % (missing_fraction*100, score_impute))
+    print ("Score RF w/missing values as feat wise min and the %s %% missing = %.2f"
+           % (missing_fraction*100, score_featmin))
+    # print "The missing mask is \n", missing_mask
 
 import matplotlib.pyplot as plt
 plt.close('all')
-plt.plot(missing_fraction_range, scores_missing, 'o-', label='RF mv')
-plt.plot(missing_fraction_range, scores_impute, 'o-', label='RF imp.')
+plt.plot(missing_fraction_range, scores_missing, 'o--', color='r', label='RF mv')
+plt.plot(missing_fraction_range, scores_impute, 'o--', color='b', label='RF imp.')
+plt.plot(missing_fraction_range, scores_featmin, 'o--', color='g', label='RF mv are feat wise low')
 plt.axhline(baseline_score, label='no missing', color='k')
 plt.xlabel('Missing fraction')
 plt.ylabel('Score')
