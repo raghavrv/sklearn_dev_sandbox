@@ -60,11 +60,15 @@ for _ in range(7):
     rv = rng.randn(*X.shape)
     thresh = np.sort(rv.ravel())[int(0.1 * n_samples * n_features)]
     mask *= rv > thresh
+    mask[y == 1] = True
     missing_fraction = np.mean(~mask)
     missing_fraction_range.append(missing_fraction)
     X_missing[~mask] = np.nan
-    score_missing = cross_val_score(rf_missing, X_missing, y, cv=cv).mean()
-    score_impute = cross_val_score(rf_impute, X_missing, y, cv=cv).mean()
+    train, test = iter(cv.split(X, y)).next()
+    score_missing = rf_missing.fit(X_missing[train], y[train]).score(X_missing[test], y[test])
+    score_impute = rf_impute.fit(X_missing[train], y[train]).score(X_missing[test], y[test])
+    # score_missing = cross_val_score(rf_missing, X_missing, y, cv=cv).mean()
+    # score_impute = cross_val_score(rf_impute, X_missing, y, cv=cv).mean()
     scores_missing.append(score_missing)
     scores_impute.append(score_impute)
     print "Score RF with the %s %% missing = %.2f" % (missing_fraction, score_missing)
