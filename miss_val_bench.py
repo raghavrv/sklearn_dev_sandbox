@@ -1,6 +1,6 @@
 import numpy as np
 
-from sklearn.datasets import fetch_covtype
+from sklearn.datasets import fetch_covtype, load_digits, load_iris
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import StratifiedShuffleSplit
 from sklearn.pipeline import Pipeline
@@ -15,23 +15,22 @@ dataset = fetch_covtype()
 X, y = dataset.data, dataset.target
 
 # Take only 2 classes
-mask = y < 3
+# mask = y < 3
 # mask = (y == 1) | (y == 2)
-X = X[mask]
-y = y[mask]
+# X = X[mask]
+# y = y[mask]
 
-X, y = X[::80].copy(), y[::80].copy()
-
+X, y = X.copy(), y.copy()
 # X, y = X[:100], y[:100]
 
 n_samples, n_features = X.shape
 
-n_estimators = 100
+n_estimators = 10
 n_jobs = 2
 
 rng = np.random.RandomState(42)
 
-cv = StratifiedShuffleSplit(n_iter=1, test_size=0.3, random_state=rng)
+cv = StratifiedShuffleSplit(n_iter=3, test_size=0.3, random_state=rng)
 
 print "The shape of the dataset is %s" % str(X.shape)
 print "The number of trees for this benchmarking is %s" % n_estimators
@@ -59,7 +58,7 @@ rf_impute = Pipeline([("imputer", Imputer(missing_values='NaN',
 missing_fraction_range = []
 missing_mask = np.zeros(X.shape, dtype=bool)
 
-for _ in range(20):
+for _ in range(100):
     X_missing = X.copy()
     X_missing_feat_min = X.copy()
     rv = rng.randn(*X.shape)
@@ -69,13 +68,13 @@ for _ in range(20):
     missing_fraction = np.mean(missing_mask)
     missing_fraction_range.append(missing_fraction)
     X_missing[missing_mask] = np.nan
-    
+
     train, test = iter(cv.split(X, y)).next()
     # print(len(train), len(test))
-    score_missing = rf_missing.fit(X_missing[train], y[train]).score(X[test], y[test])
-    score_impute = rf_impute.fit(X_missing[train], y[train]).score(X[test], y[test])
-    # score_missing = cross_val_score(rf_missing, X_missing, y, cv=cv).mean()
-    # score_impute = cross_val_score(rf_impute, X_missing, y, cv=cv).mean()
+    # score_missing = rf_missing.fit(X_missing[train], y[train]).score(X[test], y[test])
+    # score_impute = rf_impute.fit(X_missing[train], y[train]).score(X[test], y[test])
+    score_missing = cross_val_score(rf_missing, X_missing, y, cv=cv).mean()
+    score_impute = cross_val_score(rf_impute, X_missing, y, cv=cv).mean()
     scores_missing.append(score_missing)
     scores_impute.append(score_impute)
     print ("Score RF with the %s %% missing = %.2f"
