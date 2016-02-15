@@ -28,7 +28,7 @@ X, y = dataset.data, dataset.target
 n_samples, n_features = X.shape
 
 n_estimators = 100
-n_jobs = 15
+n_jobs = -1
 
 rng = np.random.RandomState(42)
 
@@ -87,6 +87,7 @@ for _ in range(40):
 
 np.save('scores_missing.npy', scores_missing)
 np.save('scores_impute.npy', scores_impute)
+np.save('missing_fraction_range.npy', missing_fraction_range)
 # plt.close('all')
 # plt.plot(missing_fraction_range, scores_missing, 'o--', color='r', label='RF mv')
 # plt.plot(missing_fraction_range, scores_impute, 'o--', color='b', label='RF imp.')
