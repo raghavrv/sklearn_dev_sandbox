@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
 from sklearn.datasets import fetch_covtype, load_digits, load_iris
 from sklearn.ensemble import RandomForestClassifier
@@ -19,14 +20,15 @@ X, y = dataset.data, dataset.target
 # mask = (y == 1) | (y == 2)
 # X = X[mask]
 # y = y[mask]
-
-X, y = X.copy(), y.copy()
+# plt.hist(y)
+# plt.show()
+# X, y = X[::20].copy(), y[::20].copy()
 # X, y = X[:100], y[:100]
 
 n_samples, n_features = X.shape
 
-n_estimators = 10
-n_jobs = 2
+n_estimators = 100
+n_jobs = 15
 
 rng = np.random.RandomState(42)
 
@@ -58,11 +60,11 @@ rf_impute = Pipeline([("imputer", Imputer(missing_values='NaN',
 missing_fraction_range = []
 missing_mask = np.zeros(X.shape, dtype=bool)
 
-for _ in range(100):
+for _ in range(40):
     X_missing = X.copy()
     X_missing_feat_min = X.copy()
     rv = rng.randn(*X.shape)
-    thresh = np.sort(rv.ravel())[int(0.1 * n_samples * n_features)]
+    thresh = np.sort(rv.ravel())[int(0.05 * n_samples * n_features)]
     missing_mask += rv < thresh
     missing_mask[y!=1] = False  # Features should go missing only for y=1
     missing_fraction = np.mean(missing_mask)
@@ -83,12 +85,13 @@ for _ in range(100):
            % (missing_fraction*100, score_impute))
     # print "The missing mask is \n", missing_mask
 
-import matplotlib.pyplot as plt
-plt.close('all')
-plt.plot(missing_fraction_range, scores_missing, 'o--', color='r', label='RF mv')
-plt.plot(missing_fraction_range, scores_impute, 'o--', color='b', label='RF imp.')
-plt.axhline(baseline_score, label='no missing', color='k')
-plt.xlabel('Missing fraction')
-plt.ylabel('Score')
-plt.legend(loc='lower left')
-plt.show()
+np.save('scores_missing.npy', scores_missing)
+np.save('scores_impute.npy', scores_impute)
+# plt.close('all')
+# plt.plot(missing_fraction_range, scores_missing, 'o--', color='r', label='RF mv')
+# plt.plot(missing_fraction_range, scores_impute, 'o--', color='b', label='RF imp.')
+# plt.axhline(baseline_score, label='no missing', color='k')
+# plt.xlabel('Missing fraction')
+# plt.ylabel('Score')
+# plt.legend(loc='lower left')
+# plt.show()
