@@ -62,12 +62,11 @@ missing_mask = np.zeros(X.shape, dtype=bool)
 
 X_missing = X.copy()
 X_missing_feat_min = X.copy()
-
-for _ in range(50):
+for _ in range(70):
     rv = rng.randn(*X.shape)
     thresh = np.sort(rv.ravel())[int(0.05 * n_samples * n_features)]
     missing_mask += rv < thresh
-    missing_mask[y!=1] = False  # Features should go missing only for y=1
+    missing_mask[y!=2] = False  # Features should go missing only for y=1
     missing_fraction = np.mean(missing_mask)
     missing_fraction_range.append(missing_fraction)
     X_missing[missing_mask] = np.nan
