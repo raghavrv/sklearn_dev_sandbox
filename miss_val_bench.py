@@ -10,6 +10,8 @@ from sklearn.model_selection import cross_val_score
 
 rng = np.random.RandomState(0)
 
+from time import time
+
 # dataset = load_digits()
 # dataset = load_iris()
 dataset = fetch_covtype()
@@ -37,11 +39,13 @@ cv = StratifiedShuffleSplit(n_iter=3, test_size=0.3, random_state=rng)
 print "The shape of the dataset is %s" % str(X.shape)
 print "The number of trees for this benchmarking is %s" % n_estimators
 
+start = time()
 # Estimate the score on the entire dataset, with no missing values
 estimator = RandomForestClassifier(random_state=0, n_estimators=n_estimators,
                                    missing_values=None, n_jobs=n_jobs)
 score = cross_val_score(estimator, X, y, cv=cv).mean()
-print "Score with the entire dataset = %.2f" % score
+end = time()
+print "Score with the entire dataset = %.2f in %d seconds" % (score, end - start)
 
 baseline_score = score
 
@@ -75,15 +79,20 @@ for _ in range(70):
     # print(len(train), len(test))
     # score_missing = rf_missing.fit(X_missing[train], y[train]).score(X[test], y[test])
     # score_impute = rf_impute.fit(X_missing[train], y[train]).score(X[test], y[test])
+
+    start = time()
     score_missing = cross_val_score(rf_missing, X_missing, y, cv=cv).mean()
-    score_impute = cross_val_score(rf_impute, X_missing, y, cv=cv).mean()
+    end = time()
     scores_missing.append(score_missing)
+    print ("Score RF with the %s %% missing = %.2f in %d seconds"
+           % (missing_fraction*100, score_missing, end - start))
+
+    start = time()
+    score_impute = cross_val_score(rf_impute, X_missing, y, cv=cv).mean()
+    end = time()
     scores_impute.append(score_impute)
-    print ("Score RF with the %s %% missing = %.2f"
-           % (missing_fraction*100, score_missing))
-    print ("Score RF+Imp. with the %s %% missing = %.2f"
-           % (missing_fraction*100, score_impute))
-    # print "The missing mask is \n", missing_mask
+    print ("Score RF+Imp. with the %s %% missing = %.2f in %d seconds"
+           % (missing_fraction*100, score_impute, end - start))
 
 np.save('scores_missing.npy', scores_missing)
 np.save('scores_impute.npy', scores_impute)
