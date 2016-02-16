@@ -23,7 +23,7 @@ X, y = dataset.data, dataset.target
 # plt.hist(y)
 # plt.show()
 # X, y = X[::20].copy(), y[::20].copy()
-# X, y = X[:100], y[:100]
+X, y = X[::2].copy(), y[::2].copy()
 
 n_samples, n_features = X.shape
 
@@ -60,9 +60,10 @@ rf_impute = Pipeline([("imputer", Imputer(missing_values='NaN',
 missing_fraction_range = []
 missing_mask = np.zeros(X.shape, dtype=bool)
 
-for _ in range(40):
-    X_missing = X.copy()
-    X_missing_feat_min = X.copy()
+X_missing = X.copy()
+X_missing_feat_min = X.copy()
+
+for _ in range(50):
     rv = rng.randn(*X.shape)
     thresh = np.sort(rv.ravel())[int(0.05 * n_samples * n_features)]
     missing_mask += rv < thresh
