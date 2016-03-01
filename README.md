@@ -20,26 +20,27 @@ The benchmark notebook - https://github.com/rvraghav93/miss_val_bench/blob/maste
 **Dataset:** One tenth of the covtype dataset <br>
 **Scoring:** mean score across 3 iterations of `StratifiedShuffleSplit` <br>
 **n_estimators:** 50 <br>
+
 1. When all the classes are present, and missing values across all the features correspond to one of the classes. (MNAR) (class 2) (1/2 of covtype)
 
-![](https://i.imgur.com/T2cDztI.png)
+  ![](https://i.imgur.com/T2cDztI.png)
 
 2. When the missing values are completely at random (MCAR).  (1/2 of covtype) (This PR's implementation tries to extract information out of randomness and hence is expected to perform badly  for MCAR.)
 
-![](https://i.imgur.com/6eHuep7.png)
+  ![](https://i.imgur.com/6eHuep7.png)
 
-**XGBoostClassifier**
+**XGBoostClassifier**<br>
 **Dataset:** One tenth covtype dataset <br>
 **Scoring:** mean score across 3 iterations of `StratifiedShuffleSplit` <br>
 **n_estimators:** 50 <br>
 
-MCAR
+1. MCAR
 
-![](https://i.imgur.com/4c0AFUJ.png)
+  ![](https://i.imgur.com/4c0AFUJ.png)
 
-MNAR
+2. MNAR
 
-![](https://i.imgur.com/e1WQh1x.png)
+  ![](https://i.imgur.com/e1WQh1x.png)
 
 <hr>
 
