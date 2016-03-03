@@ -17,32 +17,42 @@
 
 The benchmark notebook - https://github.com/rvraghav93/miss_val_bench/blob/master/missing_val_bench.ipynb
 
-**Dataset:** One half of the covtype dataset <br>
+**Dataset:** One tenth of the covtype dataset <br>
 **Scoring:** mean score across 3 iterations of `StratifiedShuffleSplit` <br>
 **n_estimators:** 50 <br>
+
 1. When all the classes are present, and missing values across all the features correspond to one of the classes. (MNAR) (class 2) (1/2 of covtype)
+
+  ![](https://i.imgur.com/T2cDztI.png)
 
 2. When the missing values are completely at random (MCAR).  (1/2 of covtype) (This PR's implementation tries to extract information out of randomness and hence is expected to perform badly  for MCAR.)
 
+  ![](https://i.imgur.com/6eHuep7.png)
 
-**Dataset:** Full covtype dataset <br>
+**XGBoostClassifier**<br>
+**Dataset:** One tenth covtype dataset <br>
 **Scoring:** mean score across 3 iterations of `StratifiedShuffleSplit` <br>
 **n_estimators:** 50 <br>
-1. For the full covtype dataset, the imputation seemed to perform better. (Full covtype, MNAR miss correlated with class 2). My intuition (which could be blatantly wrong) is that since the scores were already high, the features are pretty informative. Imputation adds redundant information(?) which increases the score. 
 
-2. 
+1. MCAR
+
+  ![](https://i.imgur.com/4c0AFUJ.png)
+
+2. MNAR
+
+  ![](https://i.imgur.com/e1WQh1x.png)
 
 <hr>
 
 ##### Personal TODO
 
-- [x] Introduce a [`drop_value`]() (link) method to generate missingness based on the preset levels of MCAR-ness(?)/MNAR-ness(?). Imporantly allow successive addition of missing samples with exact missing fractions.
+- [x] Introduce a [`drop_value`](https://gist.github.com/rvraghav93/75b80c76eadf6b7dfdcc) (link) method to generate missingness based on the preset levels of MCAR-ness(?)/MNAR-ness(?). Imporantly allow successive addition of missing samples with exact missing fractions.
 - [x] Run on covtype comparing my implementation with imputation (and end up hating imputation.)
 - [ ] See if we can heuristically set the missing values to take a random direction if the entire data(or more feasibly the current split) seems to have values missing completely at random. (Intuitively it sounds promising to me...)
-- [ ] Clean up the code and start committing it neatly
+- [x] Clean up the code and start committing it neatly
 - [ ] Read [simonoff's paper](http://people.stern.nyu.edu/jsimonof/jmlr10.pdf) properly and summarize.
-- [ ] Compare with [rpart](https://cran.r-project.org/web/packages/rpart/rpart.pdf)
-- [ ] See if there is a good established way to measure MCAR-ness
+- [ ] Compare with [rpart](https://cran.r-project.org/web/packages/rpart/rpart.pdf) - How to send the missing data to/from python. How to combine sklearn's imputation and rpart in a pipeline?!
+- [x] See if there is a good established way to measure MCAR-ness (ratio of missing fraction for the correlated labels is a decent way to measure MCAR-ness)
 
 <hr>
 
