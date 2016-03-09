@@ -1,5 +1,6 @@
 from xgboost.core import Booster, DMatrix, XGBoostError
 from xgboost.training import train
+import numpy as np
 
 from xgboost.compat import (SKLEARN_INSTALLED, XGBModelBase,
                      XGBClassifierBase, XGBRegressorBase, LabelEncoder)

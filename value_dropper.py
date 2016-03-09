@@ -1,4 +1,5 @@
 from sklearn.utils import check_X_y, check_random_state
+import numpy as np
 
 def drop_values(X, y=None, missing_mask=None,
                 missing_values="NaN",
