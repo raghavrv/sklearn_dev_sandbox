@@ -6,14 +6,14 @@
 * This is working for `RandomForestClassifier`, `DecisionTreeClassifier`, `BestSplitter` (dense only) and `ClassificationCriterion`.
 * Yet to implement the this for `BestFirstTreeBuilder`, `RandomSplitter`, and `{Best|Random}SparseSplitter`
 * Yet to implement the this for `RandomForestRegressor`, `DecisionTreeRegressor` and `RegressionCriterion`
-* I wrote a `drop_value` function to successively introduce missing data. The code can be found [here](https://github.com/rvraghav93/miss_val_bench/blob/master/value_dropper.py).
+* I wrote a `drop_value` function to successively introduce missing data. The code can be found [here](https://github.com/rvraghav93/scikit_tree_methods_with_missing_value_support/blob/master/value_dropper.py).
 
 
 <hr>
 
 ##### Some recent benchmarks
 
-The benchmark notebook - https://github.com/rvraghav93/miss_val_bench/blob/master/missing_val_bench.ipynb
+The benchmark notebook - https://github.com/rvraghav93/scikit_tree_methods_with_missing_value_support/blob/master/missing_val_bench.ipynb
 
 **Dataset:** 1/20 of the covtype dataset <br>
 **Scoring:** mean score across 3 iterations of `StratifiedShuffleSplit` <br>
