@@ -75,7 +75,8 @@ def drop_values(X, y=None, missing_mask=None,
         Returns labels if return_labels is set to True
         
     """
-    X, y = check_X_y(X, y)
+    # XXX TODO uncomment below
+    #X, y = check_X_y(X, y)
     
     if missing_mask_only and not return_missing_mask:
         raise ValueError("Both missing_mask_only and return_missing_mask"

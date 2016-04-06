@@ -12,7 +12,8 @@ from StringIO import StringIO
 from io import BytesIO
 import numpy as np
 
-def get_graph(dtc, n_classes, feat_names=None, size=[7, 7], max_depth=10):
+def get_graph(dtc, feat_names=None, size=[7, 7], max_depth=10):
+    n_classes = dtc.n_classes_
     dot_file = StringIO()
     image_file = BytesIO()
 
@@ -20,6 +21,7 @@ def get_graph(dtc, n_classes, feat_names=None, size=[7, 7], max_depth=10):
     export_graphviz(dtc, out_file=dot_file, feature_names=feat_names,
                     rounded=True, filled=True,
                     special_characters=True,
+                    show_missing_dir=True,
                     class_names=map(str, range(1, n_classes+1)),
                     max_depth=max_depth)
     dot_file.seek(0)
