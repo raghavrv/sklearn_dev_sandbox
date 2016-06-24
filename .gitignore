@@ -4,3 +4,5 @@
 *.dat
 data
 *pyc
+*/_image*
+*/_dotfile*
