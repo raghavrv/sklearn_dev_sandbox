@@ -7,7 +7,8 @@
 * Yet to implement the this for `BestFirstTreeBuilder`, `RandomSplitter`, and `{Best|Random}SparseSplitter`
 * Yet to implement the this for `RandomForestRegressor`, `DecisionTreeRegressor` and `RegressionCriterion`
 * I wrote a `drop_value` function to successively introduce missing data. The code can be found [here](https://github.com/rvraghav93/scikit_tree_methods_with_missing_value_support/blob/master/value_dropper.py).
-
+* Selfnote: Ref - https://www.analyticsvidhya.com/blog/2016/03/tutorial-powerful-packages-imputing-missing-values/
+* Also ref - https://github.com/hammerlab/fancyimpute
 
 <hr>
 
